@@ -1,0 +1,4 @@
+name: Nyan
+version: '${version}'
+main: xyz.seventwentyseven.nyan.Nyan
+api-version: '1.20'
