@@ -4,7 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 // register our command
 
-class Nyan : JavaPlugin() {
+class Main : JavaPlugin() {
     override fun onEnable() {
         logger.info("Nyan enabled!")
     }
@@ -12,4 +12,6 @@ class Nyan : JavaPlugin() {
     override fun onDisable() {
         logger.info("Nyan disabled!")
     }
+
+    // Create nyan command
 }

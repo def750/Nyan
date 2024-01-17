@@ -1,5 +1,10 @@
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import net.minecrell.pluginyml.paper.PaperPluginDescription
+
 plugins {
     kotlin("jvm") version "2.0.0-Beta2"
+    id("net.minecrell.plugin-yml.paper") version "0.6.0"
+
 }
 
 project.version = "0.0.1"
@@ -14,7 +19,15 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 }
 
+paper {
+    main = "xyz.seventwentyseven.nyan.Main"
+    version = project.version.toString()
 
+    apiVersion = "1.20"
+    generateLibrariesJson = true
+    foliaSupported = false
+
+}
 
 // Put output jar in C:\Users\def750\Desktop\server\plugins
 tasks.getByName<Jar>("jar").apply {
@@ -27,22 +40,11 @@ tasks.getByName<Jar>("jar").apply {
     }
 }
 
-tasks.processResources {
-    filesMatching("**/plugin.yml") {
-        expand(mapOf("version" to project.version))
-    }
-}
-
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
-// If target file is used by another process, wait for it to be released
+// If target file is used by another process, ignore it and force replace it
 tasks.getByName<Jar>("jar").apply {
-    doLast {
-        val file = File(build_dir + "\\Nyan.jar")
-        while (!file.renameTo(file)) {
-            Thread.sleep(1000)
-        }
-    }
+    outputs.upToDateWhen { false }
 }
