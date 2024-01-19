@@ -1,50 +1,94 @@
-import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
-import net.minecrell.pluginyml.paper.PaperPluginDescription
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.ir.backend.js.compile
 
 plugins {
     kotlin("jvm") version "2.0.0-Beta2"
-    id("net.minecrell.plugin-yml.paper") version "0.6.0"
-
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-project.version = "0.0.1"
-var build_dir = "C:\\Users\\def750\\Desktop\\server\\plugins"
+group = "xyz.seventwentyseven.nyan"
+version = "1.0.0"
+var buildDir = "C:\\Users\\ja\\Desktop\\dokumenty\\Sewer\\plugins"
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("org.jetbrains:annotations:24.1.0")
+    implementation("com.github.hazae41:mc-kutils:master-SNAPSHOT")
+    implementation(kotlin("stdlib", version = "2.0.0-Beta2"))
+    // include stdlib
 }
 
-paper {
-    main = "xyz.seventwentyseven.nyan.Main"
-    version = project.version.toString()
 
-    apiVersion = "1.20"
-    generateLibrariesJson = true
-    foliaSupported = false
-
-}
-
+tasks {
 // Put output jar in C:\Users\def750\Desktop\server\plugins
-tasks.getByName<Jar>("jar").apply {
-    archiveFileName.set("Nyan.jar")
-    // set destinationDir to the build_dir variable, if it's not empty
-    if (build_dir.isNotEmpty()) {
-        destinationDirectory.set(file(build_dir))
-    } else {
-        destinationDirectory.set(destinationDirectory.get())
+    getByName<Jar>("jar").apply {
+        archiveFileName.set("Nyan.jar")
+        // set destinationDir to the build_dir variable, if it's not empty
+        if (buildDir.isNotEmpty()) {
+            destinationDirectory.set(file(buildDir))
+        } else {
+            destinationDirectory.set(destinationDirectory.get())
+        }
+
+
+    }
+
+    build {
+        dependsOn(shadowJar)
+        // Include stdlib in final jar
+    }
+
+    compileKotlin {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+            jvmTarget = "17"
+        }
+    }
+
+    shadowJar {
+        archiveFileName.set("Nyan.jar")
+        // set destinationDir to the build_dir variable, if it's not empty
+        if (buildDir.isNotEmpty()) {
+            destinationDirectory.set(file(buildDir))
+        } else {
+            destinationDirectory.set(destinationDirectory.get())
+        }
+        // Include stdlib in final jar
+        dependencies {
+            include(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
+        }
+
+    }
+
+    compileJava {
+        dependsOn(clean)
+        options.encoding = "UTF-8"
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+        withSourcesJar()
+    }
+
+
+    build {
+        dependsOn(shadowJar)
     }
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-}
 
-// If target file is used by another process, ignore it and force replace it
-tasks.getByName<Jar>("jar").apply {
-    outputs.upToDateWhen { false }
-}
+
+//java {
+//    sourceCompatibility = JavaVersion.VERSION_17
+//    targetCompatibility = JavaVersion.VERSION_17
+//    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+//}
